@@ -22,7 +22,7 @@ import lombok.Data;
 public class User {
 
     public static enum Role {
-        ADMINISTRATOR, EDITOR, AUTHOR
+        ROLE_ADMINISTRATOR, ROLE_AUTHOR
     }
 
     @Id
