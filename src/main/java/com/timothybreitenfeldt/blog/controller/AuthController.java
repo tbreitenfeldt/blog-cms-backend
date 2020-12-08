@@ -24,10 +24,21 @@ public class AuthController {
         this.authService.registerAuthor(registerRequest);
     }
 
-    @PostMapping("/login")
-    @ResponseStatus(HttpStatus.OK)
-public AuthenticationResponse login(@RequestBody AuthenticationRequest authenticationRequest) {
-        return this.authService.login(authenticationRequest)
+    @PostMapping("/admin/register")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void registerAdministrator(@RequestBody RegisterRequest registerRequest) {
+        this.authService.registerAdministrator(registerRequest);
     }
 
+    @PostMapping("/login")
+    @ResponseStatus(HttpStatus.OK)
+    public AuthenticationResponse authorLogin(@RequestBody AuthenticationRequest authenticationRequest) {
+        return this.authService.authorLogin(authenticationRequest);
+    }
+
+    @PostMapping("/admin/login")
+    @ResponseStatus(HttpStatus.OK)
+    public AuthenticationResponse administratorLogin(@RequestBody AuthenticationRequest authenticationRequest) {
+        return this.authService.administratorLogin(authenticationRequest);
+    }
 }

@@ -39,9 +39,13 @@ public class AuthService {
         this.userRepository.save(user);
     }
 
-    public AuthenticationResponse login(AuthenticationRequest authenticationRequest) {
+    public AuthenticationResponse authorLogin(AuthenticationRequest authenticationRequest) {
         // TODO Auto-generated method stub
         return null;
     }
 
+    public AuthenticationResponse administratorLogin(AuthenticationRequest authenticationRequest) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }
