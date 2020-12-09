@@ -43,7 +43,7 @@ public class SecurityConfig {
         @Override
         protected void configure(HttpSecurity httpSecurity) throws Exception {
             httpSecurity.csrf().disable();
-            httpSecurity.authorizeRequests().antMatchers("/api/admin").hasRole("ADMINISTRATOR");
+            httpSecurity.authorizeRequests().antMatchers("/api/admin/**").hasRole("ADMINISTRATOR");
         }
 
     }
@@ -70,7 +70,7 @@ public class SecurityConfig {
         @Override
         protected void configure(HttpSecurity httpSecurity) throws Exception {
             httpSecurity.csrf().disable();
-            httpSecurity.authorizeRequests().antMatchers("/api/author").hasRole("AUTHOR");
+            httpSecurity.authorizeRequests().antMatchers("/api/author/**").hasRole("AUTHOR");
         }
 
     }

@@ -10,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -30,7 +31,7 @@ public class User {
     private Long id;
 
     @Column(nullable = false, length = 35, unique = true)
-    @Size(min = 5, max = 35)
+    @Size(min = 4, max = 35)
     private String username;
 
     @Column(nullable = false, length = 60)
@@ -39,9 +40,10 @@ public class User {
 
     @Column(nullable = false, length = 256, unique = true)
     @Size(min = 3, max = 256)
+    @Email
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
 
