@@ -1,7 +1,5 @@
 package com.timothybreitenfeldt.blog.service;
 
-import javax.annotation.Resource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,8 +24,8 @@ public class AuthorAuthenticationService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Resource(name = "authorAuthenticationManager")
-    private AuthenticationManager authenticationManager;
+    @Autowired
+    private AuthenticationManager authorAuthenticationManager;
 
     @Autowired
     private JWTUtil jwtUtil;
@@ -44,7 +42,7 @@ public class AuthorAuthenticationService {
     public AuthenticationResponse authorLogin(AuthenticationRequest authenticationRequest) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 authenticationRequest.getUsername(), authenticationRequest.getPassword());
-        Authentication authentication = this.authenticationManager.authenticate(authenticationToken);
+        Authentication authentication = this.authorAuthenticationManager.authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = this.jwtUtil.generateToken(authentication);
         return new AuthenticationResponse(jwt, authenticationRequest.getUsername());
