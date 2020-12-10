@@ -2,6 +2,7 @@ package com.timothybreitenfeldt.blog.util;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.UUID;
 import java.util.function.Function;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -15,6 +16,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
@@ -24,27 +27,7 @@ public class JWTUtil {
     @Value("${security.secret-key}")
     private String SECRET_KEY;
     private SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
-
-    public String extractUsername(String token) {
-        return this.extractClaim(token, Claims::getSubject);
-    }
-
-    public Date extractExpiration(String token) {
-        return this.extractClaim(token, Claims::getExpiration);
-    }
-
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = this.extractAllClaims(token);
-        return claimsResolver.apply(claims);
-    }
-
-    private Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(this.getSigningKey()).parseClaimsJws(token).getBody();
-    }
-
-    private Boolean isTokenExpired(String token) {
-        return this.extractExpiration(token).before(new Date());
-    }
+    private Jws<Claims> jwt;
 
     public String generateToken(Authentication authentication) {
         User principal = (User) authentication.getPrincipal();
@@ -56,21 +39,47 @@ public class JWTUtil {
     }
 
     private String createToken(String subject, Collection<? extends GrantedAuthority> athorities) {
-        return Jwts.builder().setSubject(subject).claim("athorities", athorities)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
+        return Jwts.builder().claim("athorities", athorities).setSubject(subject)
+                .setIssuer("blog.timothybreitenfeldt.com").setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
-                .signWith(this.signatureAlgorithm, this.getSigningKey()).compact();
+                .setId(UUID.randomUUID().toString()).signWith(this.signatureAlgorithm, this.getSigningKey()).compact();
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = this.extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !this.isTokenExpired(token));
+    public boolean validateToken(String token) {
+        try {
+            Jws<Claims> jwt = Jwts.parser().setSigningKey(this.getSigningKey()).parseClaimsJws(token);
+            this.jwt = jwt;
+            return true;
+        } catch (JwtException e) {
+            return false;
+        }
     }
 
     private SecretKeySpec getSigningKey() {
         byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary(this.SECRET_KEY);
         return new SecretKeySpec(apiKeySecretBytes, this.signatureAlgorithm.getJcaName());
+    }
 
+    public <T> T extractClaim(Function<Claims, T> claimsResolver) {
+        if (this.jwt == null) {
+            throw new NullPointerException(
+                    "You must validate your token first by calling 'boolean validateToken(String token)'");
+        }
+
+        Claims claims = this.jwt.getBody();
+        return claimsResolver.apply(claims);
+    }
+
+    public String extractSubject() {
+        return this.extractClaim(Claims::getSubject);
+    }
+
+    public Date extractExpiration() {
+        return this.extractClaim(Claims::getExpiration);
+    }
+
+    public Jws<Claims> getParsedJwt() {
+        return this.jwt;
     }
 
 }
