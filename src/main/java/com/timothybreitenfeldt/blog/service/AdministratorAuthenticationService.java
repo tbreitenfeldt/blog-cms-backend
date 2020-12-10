@@ -1,5 +1,7 @@
 package com.timothybreitenfeldt.blog.service;
 
+import javax.annotation.Resource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,7 +26,7 @@ public class AdministratorAuthenticationService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
+    @Resource(name = "administratorAuthenticationManager")
     private AuthenticationManager administratorAuthenticationManager;
 
     @Autowired
@@ -46,6 +48,8 @@ public class AdministratorAuthenticationService {
         Authentication authentication = this.administratorAuthenticationManager.authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = this.jwtUtil.generateToken(authentication);
-        return new AuthenticationResponse(jwt, authenticationRequest.getUsername());
+        org.springframework.security.core.userdetails.User user = (org.springframework.security.core.userdetails.User) authentication
+                .getPrincipal();
+        return new AuthenticationResponse(jwt, user.getUsername());
     }
 }
