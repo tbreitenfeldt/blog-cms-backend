@@ -1,5 +1,7 @@
 package com.timothybreitenfeldt.blog.service;
 
+import javax.annotation.Resource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,7 +18,7 @@ import com.timothybreitenfeldt.blog.repository.UserRepository;
 import com.timothybreitenfeldt.blog.util.JWTUtil;
 
 @Service
-public class AuthService {
+public class AuthorAuthenticationService {
 
     @Autowired
     private UserRepository userRepository;
@@ -24,11 +26,8 @@ public class AuthService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private AuthenticationManager administratorAuthenticationManager;
-
-    @Autowired
-    private AuthenticationManager authorAuthenticationManager;
+    @Resource(name = "authorAuthenticationManager")
+    private AuthenticationManager authenticationManager;
 
     @Autowired
     private JWTUtil jwtUtil;
@@ -39,35 +38,16 @@ public class AuthService {
         user.setPassword(this.passwordEncoder.encode(registerRequest.getPassword()));
         user.setEmail(registerRequest.getEmail());
         user.setRole(User.Role.ROLE_AUTHOR);
-
-        this.userRepository.save(user);
-    }
-
-    public void registerAdministrator(RegisterRequest registerRequest) {
-        User user = new User();
-        user.setUsername(registerRequest.getUsername());
-        user.setPassword(this.passwordEncoder.encode(registerRequest.getPassword()));
-        user.setEmail(registerRequest.getEmail());
-        user.setRole(User.Role.ROLE_ADMINISTRATOR);
-
         this.userRepository.save(user);
     }
 
     public AuthenticationResponse authorLogin(AuthenticationRequest authenticationRequest) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 authenticationRequest.getUsername(), authenticationRequest.getPassword());
-        Authentication authentication = this.authorAuthenticationManager.authenticate(authenticationToken);
+        Authentication authentication = this.authenticationManager.authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = this.jwtUtil.generateToken(authentication);
         return new AuthenticationResponse(jwt, authenticationRequest.getUsername());
     }
 
-    public AuthenticationResponse administratorLogin(AuthenticationRequest authenticationRequest) {
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                authenticationRequest.getUsername(), authenticationRequest.getPassword());
-        Authentication authentication = this.administratorAuthenticationManager.authenticate(authenticationToken);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = this.jwtUtil.generateToken(authentication);
-        return new AuthenticationResponse(jwt, authenticationRequest.getUsername());
-    }
 }

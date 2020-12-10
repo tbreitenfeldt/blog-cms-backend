@@ -1,7 +1,6 @@
 package com.timothybreitenfeldt.blog.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -28,9 +27,9 @@ public class SecurityConfig {
         @Autowired
         private AdministratorDetailsServiceImpl administratorDetailsServiceImpl;
 
-        @Bean
-        @Qualifier("administratorAuthenticationManager")
-        public AuthenticationManager administratorAuthenticationManager() throws Exception {
+        @Bean(name = "administratorAuthenticationManager")
+        @Override
+        public AuthenticationManager authenticationManagerBean() throws Exception {
             return super.authenticationManagerBean();
         }
 
@@ -43,7 +42,9 @@ public class SecurityConfig {
         @Override
         protected void configure(HttpSecurity httpSecurity) throws Exception {
             httpSecurity.csrf().disable();
-            httpSecurity.authorizeRequests().antMatchers("/api/admin/**").hasRole("ADMINISTRATOR");
+            httpSecurity.authorizeRequests().antMatchers("/api/admin/login").permitAll()
+                    .antMatchers("/api/admin/register").permitAll().antMatchers("/api/admin/**")
+                    .hasRole("ADMINISTRATOR");
         }
 
     }
@@ -55,10 +56,10 @@ public class SecurityConfig {
         @Autowired
         private AuthorDetailsServiceImpl authorDetailsServiceImpl;
 
-        @Bean
-        @Qualifier("authorAuthenticationManager")
         @Primary
-        public AuthenticationManager authorAuthenticationManager() throws Exception {
+        @Bean(name = "authorAuthenticationManager")
+        @Override
+        public AuthenticationManager authenticationManagerBean() throws Exception {
             return super.authenticationManagerBean();
         }
 
