@@ -15,6 +15,8 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import com.timothybreitenfeldt.blog.exception.UserNotAuthenticatedException;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
@@ -62,7 +64,7 @@ public class JWTUtil {
 
     public <T> T extractClaim(Function<Claims, T> claimsResolver) {
         if (this.jwt == null) {
-            throw new NullPointerException(
+            throw new UserNotAuthenticatedException(
                     "You must validate your token first by calling 'boolean validateToken(String token)'");
         }
 
