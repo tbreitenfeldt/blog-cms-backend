@@ -5,13 +5,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.timothybreitenfeldt.blog.service.AdministratorDetailsServiceImpl;
 import com.timothybreitenfeldt.blog.service.AuthorDetailsServiceImpl;
@@ -42,10 +43,12 @@ public class SecurityConfig {
 
         @Override
         protected void configure(HttpSecurity httpSecurity) throws Exception {
-            httpSecurity.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
-            httpSecurity.authorizeRequests().antMatchers("/api/admin/login").permitAll()
-                    .antMatchers("/api/admin/register").permitAll().antMatchers("/api/admin/**")
-                    .hasRole("ADMINISTRATOR");
+            httpSecurity.csrf().disable();
+            httpSecurity.authorizeRequests()
+                    .requestMatchers(new AntPathRequestMatcher("/api/admin/login", HttpMethod.POST.toString()))
+                    .permitAll()
+                    .requestMatchers(new AntPathRequestMatcher("/api/admin/register", HttpMethod.POST.toString()))
+                    .permitAll().antMatchers("/api/admin/**").hasRole("ADMINISTRATOR");
         }
 
     }
@@ -71,8 +74,11 @@ public class SecurityConfig {
 
         @Override
         protected void configure(HttpSecurity httpSecurity) throws Exception {
-            httpSecurity.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
-            httpSecurity.authorizeRequests().antMatchers("/api/author/**").hasRole("AUTHOR");
+            httpSecurity.csrf().disable();
+            httpSecurity.authorizeRequests()
+                    .requestMatchers(new AntPathRequestMatcher("/api/login", HttpMethod.POST.toString())).permitAll()
+                    .requestMatchers(new AntPathRequestMatcher("/api/register", HttpMethod.POST.toString())).permitAll()
+                    .antMatchers("/api/**").hasRole("AUTHOR");
         }
 
     }
@@ -84,7 +90,11 @@ public class SecurityConfig {
         @Override
         protected void configure(HttpSecurity httpSecurity) throws Exception {
             httpSecurity.csrf().disable();
-            httpSecurity.authorizeRequests().antMatchers("/api/**").permitAll();
+            httpSecurity.authorizeRequests()
+                    .requestMatchers(new AntPathRequestMatcher("/api/posts/all/headers", HttpMethod.GET.toString()))
+                    .permitAll()
+                    .requestMatchers(new AntPathRequestMatcher("/api/author/posts/headers", HttpMethod.GET.toString()))
+                    .permitAll();
         }
 
     }

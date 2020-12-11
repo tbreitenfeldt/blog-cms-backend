@@ -34,13 +34,13 @@ public class PostController {
         return this.postService.createPost(postRequestDto);
     }
 
-    @GetMapping("/posts/all")
+    @GetMapping("/posts/all/headers")
     @ResponseStatus(HttpStatus.OK)
     public List<PostHeaderResponseDto> getAllPostHeaders() {
         return this.postService.getAllPostHeaders();
     }
 
-    @GetMapping("/author/posts")
+    @GetMapping("/author/posts/headers")
     @ResponseStatus(HttpStatus.OK)
     public List<PostHeaderResponseDto> getPostHeadersForAuthor() {
         return this.postService.getPostHeadersForAuthor();
