@@ -92,8 +92,6 @@ public class SecurityConfig {
             httpSecurity.csrf().disable();
             httpSecurity.authorizeRequests()
                     .requestMatchers(new AntPathRequestMatcher("/api/posts/all/headers", HttpMethod.GET.toString()))
-                    .permitAll()
-                    .requestMatchers(new AntPathRequestMatcher("/api/author/posts/headers", HttpMethod.GET.toString()))
                     .permitAll();
         }
 
