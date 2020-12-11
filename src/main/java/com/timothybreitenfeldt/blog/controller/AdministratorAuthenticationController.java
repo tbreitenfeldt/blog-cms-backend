@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.timothybreitenfeldt.blog.dto.AuthenticationRequest;
-import com.timothybreitenfeldt.blog.dto.AuthenticationResponse;
-import com.timothybreitenfeldt.blog.dto.RegisterRequest;
+import com.timothybreitenfeldt.blog.dto.AuthenticationRequestDto;
+import com.timothybreitenfeldt.blog.dto.AuthenticationResponseDto;
+import com.timothybreitenfeldt.blog.dto.RegisterRequestDto;
 import com.timothybreitenfeldt.blog.service.AdministratorAuthenticationService;
 
 @RestController
@@ -24,13 +24,13 @@ public class AdministratorAuthenticationController {
 
     @PostMapping("/admin/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public void registerAdministrator(@Valid @RequestBody RegisterRequest registerRequest) {
+    public void registerAdministrator(@Valid @RequestBody RegisterRequestDto registerRequest) {
         this.administratorAuthenticationService.registerAdministrator(registerRequest);
     }
 
     @PostMapping("/admin/login")
     @ResponseStatus(HttpStatus.OK)
-    public AuthenticationResponse administratorLogin(@Valid @RequestBody AuthenticationRequest authenticationRequest) {
+    public AuthenticationResponseDto administratorLogin(@Valid @RequestBody AuthenticationRequestDto authenticationRequest) {
         return this.administratorAuthenticationService.administratorLogin(authenticationRequest);
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 import com.timothybreitenfeldt.blog.service.AdministratorDetailsServiceImpl;
 import com.timothybreitenfeldt.blog.service.AuthorDetailsServiceImpl;
@@ -41,7 +42,7 @@ public class SecurityConfig {
 
         @Override
         protected void configure(HttpSecurity httpSecurity) throws Exception {
-            httpSecurity.csrf().disable();
+            httpSecurity.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
             httpSecurity.authorizeRequests().antMatchers("/api/admin/login").permitAll()
                     .antMatchers("/api/admin/register").permitAll().antMatchers("/api/admin/**")
                     .hasRole("ADMINISTRATOR");
@@ -70,7 +71,7 @@ public class SecurityConfig {
 
         @Override
         protected void configure(HttpSecurity httpSecurity) throws Exception {
-            httpSecurity.csrf().disable();
+            httpSecurity.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
             httpSecurity.authorizeRequests().antMatchers("/api/author/**").hasRole("AUTHOR");
         }
 

@@ -10,9 +10,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.timothybreitenfeldt.blog.dto.AuthenticationRequest;
-import com.timothybreitenfeldt.blog.dto.AuthenticationResponse;
-import com.timothybreitenfeldt.blog.dto.RegisterRequest;
+import com.timothybreitenfeldt.blog.dto.AuthenticationRequestDto;
+import com.timothybreitenfeldt.blog.dto.AuthenticationResponseDto;
+import com.timothybreitenfeldt.blog.dto.RegisterRequestDto;
 import com.timothybreitenfeldt.blog.model.User;
 import com.timothybreitenfeldt.blog.repository.UserRepository;
 import com.timothybreitenfeldt.blog.util.JWTUtil;
@@ -32,7 +32,7 @@ public class AuthorAuthenticationService {
     @Autowired
     private JWTUtil jwtUtil;
 
-    public void registerAuthor(RegisterRequest registerRequest) {
+    public void registerAuthor(RegisterRequestDto registerRequest) {
         User user = new User();
         user.setUsername(registerRequest.getUsername());
         user.setPassword(this.passwordEncoder.encode(registerRequest.getPassword()));
@@ -41,7 +41,7 @@ public class AuthorAuthenticationService {
         this.userRepository.save(user);
     }
 
-    public AuthenticationResponse authorLogin(AuthenticationRequest authenticationRequest) {
+    public AuthenticationResponseDto authorLogin(AuthenticationRequestDto authenticationRequest) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 authenticationRequest.getUsername(), authenticationRequest.getPassword());
         Authentication authentication = this.authorAuthenticationManager.authenticate(authenticationToken);
@@ -49,7 +49,7 @@ public class AuthorAuthenticationService {
         String jwt = this.jwtUtil.generateToken(authentication);
         org.springframework.security.core.userdetails.User user = (org.springframework.security.core.userdetails.User) authentication
                 .getPrincipal();
-        return new AuthenticationResponse(jwt, user.getUsername());
+        return new AuthenticationResponseDto(jwt, user.getUsername());
     }
 
 }
