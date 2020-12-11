@@ -8,6 +8,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.timothybreitenfeldt.blog.dto.PostHeaderResponseDto;
 import com.timothybreitenfeldt.blog.dto.PostRequestDto;
 import com.timothybreitenfeldt.blog.dto.PostResponseDto;
 import com.timothybreitenfeldt.blog.exception.PostNotFoundException;
@@ -32,15 +33,15 @@ public class PostService {
         return this.mapFromPostModelToPostResponseDto(result);
     }
 
-    public List<PostResponseDto> getAllPosts() {
-        List<Post> posts = this.postRepository.findAll();
-        return posts.stream().map(this::mapFromPostModelToPostResponseDto).collect(Collectors.toList());
+    public List<PostHeaderResponseDto> getAllPostHeaders() {
+        List<Post> posts = this.postRepository.findAllPostHeaders();
+        return posts.stream().map(this::mapFromPostModelToPostHeaderResponseDto).collect(Collectors.toList());
     }
 
-    public List<PostResponseDto> getPostsForAuthor() {
+    public List<PostHeaderResponseDto> getPostHeadersForAuthor() {
         String username = this.jwtUtil.extractSubject();
-        List<Post> posts = this.postRepository.findAllByUsername(username);
-        return posts.stream().map(this::mapFromPostModelToPostResponseDto).collect(Collectors.toList());
+        List<Post> posts = this.postRepository.findAllPostHeadersByUsername(username);
+        return posts.stream().map(this::mapFromPostModelToPostHeaderResponseDto).collect(Collectors.toList());
     }
 
     public PostResponseDto getPost(Long id) {
@@ -96,6 +97,16 @@ public class PostService {
         post.setContent(postRequestDto.getContent());
         post.setUser(user);
         return post;
+    }
+
+    private PostHeaderResponseDto mapFromPostModelToPostHeaderResponseDto(Post post) {
+        PostHeaderResponseDto postHeaderResponseDto = new PostHeaderResponseDto();
+
+        postHeaderResponseDto.setId(post.getId());
+        postHeaderResponseDto.setTitle(post.getTitle());
+        postHeaderResponseDto.setUsername(post.getUser().getUsername());
+        postHeaderResponseDto.setUpdatedOn(post.getUpdatedOn());
+        return postHeaderResponseDto;
     }
 
     private PostResponseDto mapFromPostModelToPostResponseDto(Post post) {
