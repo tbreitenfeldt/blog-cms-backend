@@ -12,7 +12,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.timothybreitenfeldt.blog.filter.AdministratorJWTFilter;
+import com.timothybreitenfeldt.blog.filter.UserJWTFilter;
 import com.timothybreitenfeldt.blog.service.AdministratorDetailsServiceImpl;
 import com.timothybreitenfeldt.blog.service.UserDetailsServiceImpl;
 
@@ -28,6 +31,9 @@ public class SecurityConfig {
 
         @Autowired
         private UserDetailsServiceImpl authorDetailsServiceImpl;
+
+        @Autowired
+        private UserJWTFilter userJWTFilter;
 
         @Primary
         @Bean(name = "userAuthenticationManager")
@@ -49,6 +55,8 @@ public class SecurityConfig {
                     .antMatchers(HttpMethod.GET, "/api/author/posts/headers")
                     .antMatchers(HttpMethod.PUT, "/api/posts/{id}").and().authorizeRequests().anyRequest()
                     .hasRole("AUTHOR");
+
+            httpSecurity.addFilterBefore(this.userJWTFilter, UsernamePasswordAuthenticationFilter.class);
         }
 
     }
@@ -59,6 +67,9 @@ public class SecurityConfig {
 
         @Autowired
         private AdministratorDetailsServiceImpl administratorDetailsServiceImpl;
+
+        @Autowired
+        private AdministratorJWTFilter administratorJWTFilter;
 
         @Bean(name = "administratorAuthenticationManager")
         @Override
@@ -76,7 +87,10 @@ public class SecurityConfig {
         protected void configure(HttpSecurity httpSecurity) throws Exception {
             httpSecurity.csrf().disable();
             httpSecurity.authorizeRequests().antMatchers(HttpMethod.POST, "/api/admin/login", "/api/admin/register")
-                    .permitAll().antMatchers("/api/admin/**").hasRole("ADMINISTRATOR");
+                    .permitAll();
+            httpSecurity.authorizeRequests().antMatchers("/api/admin/**").hasRole("ADMINISTRATOR");
+
+            httpSecurity.addFilterBefore(this.administratorJWTFilter, UsernamePasswordAuthenticationFilter.class);
         }
 
     }
