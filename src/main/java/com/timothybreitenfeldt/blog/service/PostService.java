@@ -62,12 +62,33 @@ public class PostService {
     }
 
     @Transactional
+    public void updatePostForUser(Long id, PostRequestDto postRequestDto) {
+        if (!this.postRepository.existsById(id)) {
+            throw new PostNotFoundException("Post with ID " + id + " cannot be found.");
+        }
+
+        boolean isUserRequest = true;
+        Post post = this.mapFromPostRequestDtoToPostModel(id, postRequestDto, isUserRequest);
+        this.postRepository.save(post);
+    }
+
+    @Transactional
     public void deleteAnyPost(Long id) {
         if (!this.postRepository.existsById(id)) {
             throw new PostNotFoundException("Post with ID " + id + " cannot be found.");
         }
 
         this.postRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void deletePostForUser(Long id) {
+        if (!this.postRepository.existsById(id)) {
+            throw new PostNotFoundException("Post with ID " + id + " cannot be found.");
+        }
+
+        String username = this.jwtUtil.extractSubject();
+        this.postRepository.deleteByIdForUser(id, username);
     }
 
     private Post mapFromPostRequestDtoToPostModel(PostRequestDto postRequestDto) {

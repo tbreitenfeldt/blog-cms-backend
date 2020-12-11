@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.timothybreitenfeldt.blog.dto.PostHeaderResponseDto;
 import com.timothybreitenfeldt.blog.dto.PostRequestDto;
 import com.timothybreitenfeldt.blog.dto.PostResponseDto;
 import com.timothybreitenfeldt.blog.service.PostService;
@@ -35,14 +36,14 @@ public class PostController {
 
     @GetMapping("/posts/all")
     @ResponseStatus(HttpStatus.OK)
-    public List<PostResponseDto> getAllPosts() {
-        return this.postService.getAllPosts();
+    public List<PostHeaderResponseDto> getAllPostHeaders() {
+        return this.postService.getAllPostHeaders();
     }
 
     @GetMapping("/author/posts")
     @ResponseStatus(HttpStatus.OK)
-    public List<PostResponseDto> getPostsForAuthor() {
-        return this.postService.getPostsForAuthor();
+    public List<PostHeaderResponseDto> getPostHeadersForAuthor() {
+        return this.postService.getPostHeadersForAuthor();
     }
 
     @GetMapping("/posts/{id}")
@@ -54,13 +55,25 @@ public class PostController {
     @PutMapping("/admin/posts/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateAnyPost(@PathVariable Long id, @Valid @RequestBody PostRequestDto postRequestDto) {
-        this.postService.updatePost(id, postRequestDto);
+        this.postService.updateAnyPost(id, postRequestDto);
+    }
+
+    @PutMapping("/posts/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updatePostForUser(@PathVariable Long id, @Valid @RequestBody PostRequestDto postRequestDto) {
+        this.postService.updatePostForUser(id, postRequestDto);
     }
 
     @DeleteMapping("/admin/posts/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAnyPost(@PathVariable Long id) {
-        this.postService.deletePost(id);
+        this.postService.deleteAnyPost(id);
+    }
+
+    @DeleteMapping("/posts/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletePostForUser(@PathVariable Long id) {
+        this.postService.deletePostForUser(id);
     }
 
 }
