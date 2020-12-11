@@ -30,7 +30,7 @@ public class Post {
 
     @Column(nullable = false)
     @NotBlank
-    @Size(1, 50)
+    @Size(min = 1, max = 50)
     private String title;
 
     @Column(nullable = false)
