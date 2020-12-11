@@ -49,7 +49,7 @@ public class AuthorAuthenticationService {
         String jwt = this.jwtUtil.generateToken(authentication);
         org.springframework.security.core.userdetails.User user = (org.springframework.security.core.userdetails.User) authentication
                 .getPrincipal();
-        return new AuthenticationResponseDto(jwt, user.getUsername());
+        return new AuthenticationResponseDto(jwt, user.getUsername(), user.getAuthorities().toString());
     }
 
 }
