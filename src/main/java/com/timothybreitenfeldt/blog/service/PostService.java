@@ -50,13 +50,22 @@ public class PostService {
     }
 
     @Transactional
-    public void updatePost(Long id, PostRequestDto postRequestDto) {
-        Post post = this.mapFromPostRequestDtoToPostModel(id, postRequestDto);
+    public void updateAnyPost(Long id, PostRequestDto postRequestDto) {
+        if (!this.postRepository.existsById(id)) {
+            throw new PostNotFoundException("Post with ID " + id + " cannot be found.");
+        }
+
+        boolean isUserRequest = false;
+        Post post = this.mapFromPostRequestDtoToPostModel(id, postRequestDto, isUserRequest);
         this.postRepository.save(post);
     }
 
     @Transactional
-    public void deletePost(Long id) {
+    public void deleteAnyPost(Long id) {
+        if (!this.postRepository.existsById(id)) {
+            throw new PostNotFoundException("Post with ID " + id + " cannot be found.");
+        }
+
         this.postRepository.deleteById(id);
     }
 
@@ -65,15 +74,24 @@ public class PostService {
     }
 
     private Post mapFromPostRequestDtoToPostModel(Long id, PostRequestDto postRequestDto) {
+        boolean isUserRequest = true;
+        return this.mapFromPostRequestDtoToPostModel(id, postRequestDto, isUserRequest);
+    }
+
+    private Post mapFromPostRequestDtoToPostModel(Long id, PostRequestDto postRequestDto, boolean isUserRequest) {
         Post post = new Post();
-        User user = new User();
-        String username = this.jwtUtil.extractSubject();
+        User user = null;
 
         if (id != null) {
             post.setId(id);
         }
 
-        user.setUsername(username);
+        if (isUserRequest) {
+            user = new User();
+            String username = this.jwtUtil.extractSubject();
+            user.setUsername(username);
+        }
+
         post.setTitle(postRequestDto.getTitle());
         post.setContent(postRequestDto.getContent());
         post.setUser(user);
