@@ -18,7 +18,7 @@ import com.timothybreitenfeldt.blog.repository.UserRepository;
 import com.timothybreitenfeldt.blog.util.JWTUtil;
 
 @Service
-public class AuthorAuthenticationService {
+public class UserAuthenticationService {
 
     @Autowired
     private UserRepository userRepository;
@@ -26,8 +26,8 @@ public class AuthorAuthenticationService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Resource(name = "authorAuthenticationManager")
-    private AuthenticationManager authorAuthenticationManager;
+    @Resource(name = "userAuthenticationManager")
+    private AuthenticationManager userAuthenticationManager;
 
     @Autowired
     private JWTUtil jwtUtil;
@@ -44,7 +44,7 @@ public class AuthorAuthenticationService {
     public AuthenticationResponseDto authorLogin(AuthenticationRequestDto authenticationRequest) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 authenticationRequest.getUsername(), authenticationRequest.getPassword());
-        Authentication authentication = this.authorAuthenticationManager.authenticate(authenticationToken);
+        Authentication authentication = this.userAuthenticationManager.authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = this.jwtUtil.generateToken(authentication);
         org.springframework.security.core.userdetails.User user = (org.springframework.security.core.userdetails.User) authentication

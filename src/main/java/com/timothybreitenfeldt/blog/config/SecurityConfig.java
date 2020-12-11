@@ -15,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.timothybreitenfeldt.blog.service.AdministratorDetailsServiceImpl;
-import com.timothybreitenfeldt.blog.service.AuthorDetailsServiceImpl;
+import com.timothybreitenfeldt.blog.service.UserDetailsServiceImpl;
 
 @EnableWebSecurity
 public class SecurityConfig {
@@ -55,13 +55,13 @@ public class SecurityConfig {
 
     @Order(2)
     @Configuration
-    public class AuthorSecurityConfig extends WebSecurityConfigurerAdapter {
+    public class UserSecurityConfig extends WebSecurityConfigurerAdapter {
 
         @Autowired
-        private AuthorDetailsServiceImpl authorDetailsServiceImpl;
+        private UserDetailsServiceImpl authorDetailsServiceImpl;
 
         @Primary
-        @Bean(name = "authorAuthenticationManager")
+        @Bean(name = "userAuthenticationManager")
         @Override
         public AuthenticationManager authenticationManagerBean() throws Exception {
             return super.authenticationManagerBean();

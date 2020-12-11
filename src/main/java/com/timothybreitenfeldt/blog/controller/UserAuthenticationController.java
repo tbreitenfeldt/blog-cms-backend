@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.timothybreitenfeldt.blog.dto.AuthenticationRequestDto;
 import com.timothybreitenfeldt.blog.dto.AuthenticationResponseDto;
 import com.timothybreitenfeldt.blog.dto.RegisterRequestDto;
-import com.timothybreitenfeldt.blog.service.AuthorAuthenticationService;
+import com.timothybreitenfeldt.blog.service.UserAuthenticationService;
 
 @RestController
 @RequestMapping("/api")
-public class AuthorAuthenticationController {
+public class UserAuthenticationController {
 
     @Autowired
-    private AuthorAuthenticationService authorAuthenticationService;
+    private UserAuthenticationService authorAuthenticationService;
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)

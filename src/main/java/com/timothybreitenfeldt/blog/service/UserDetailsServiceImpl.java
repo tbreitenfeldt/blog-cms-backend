@@ -14,7 +14,7 @@ import com.timothybreitenfeldt.blog.model.User;
 import com.timothybreitenfeldt.blog.repository.UserRepository;
 
 @Service
-public class AuthorDetailsServiceImpl implements UserDetailsService {
+public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;

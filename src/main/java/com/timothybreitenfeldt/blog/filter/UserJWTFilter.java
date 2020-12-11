@@ -14,13 +14,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.timothybreitenfeldt.blog.service.AuthorDetailsServiceImpl;
+import com.timothybreitenfeldt.blog.service.UserDetailsServiceImpl;
 import com.timothybreitenfeldt.blog.util.JWTUtil;
 
-public class AuthorJWTFilter extends OncePerRequestFilter {
+public class UserJWTFilter extends OncePerRequestFilter {
 
     @Autowired
-    AuthorDetailsServiceImpl authorDetailsServiceImpl;
+    UserDetailsServiceImpl authorDetailsServiceImpl;
 
     @Autowired
     private JWTUtil jwtUtil;
