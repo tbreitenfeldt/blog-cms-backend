@@ -8,7 +8,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -21,7 +20,6 @@ import com.timothybreitenfeldt.blog.service.AdministratorDetailsServiceImpl;
 import com.timothybreitenfeldt.blog.service.UserDetailsServiceImpl;
 
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     @Autowired
@@ -54,10 +52,10 @@ public class SecurityConfig {
             httpSecurity.csrf().disable();
             httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-            httpSecurity.cors().and().authorizeRequests().antMatchers(HttpMethod.POST, "/api/login", "/api/register")
-                    .permitAll().antMatchers(HttpMethod.POST, "/api/posts").hasRole("AUTHOR")
+            httpSecurity.cors().and().authorizeRequests().antMatchers(HttpMethod.POST, "/api/posts").hasRole("AUTHOR")
                     .antMatchers(HttpMethod.GET, "/api/author/posts/headers").hasRole("AUTHOR")
-                    .antMatchers(HttpMethod.PUT, "/api/posts/{id}").hasRole("AUTHOR");
+                    .antMatchers(HttpMethod.PUT, "/api/posts/{id}").hasRole("AUTHOR")
+                    .antMatchers(HttpMethod.DELETE, "/api/posts/{id}").hasRole("AUTHOR");
 
             httpSecurity.addFilterBefore(SecurityConfig.this.jwtAuthenticationFilter,
                     UsernamePasswordAuthenticationFilter.class);
@@ -87,9 +85,12 @@ public class SecurityConfig {
         @Override
         protected void configure(HttpSecurity httpSecurity) throws Exception {
             httpSecurity.csrf().disable();
-            httpSecurity.authorizeRequests().antMatchers(HttpMethod.POST, "/api/admin/login", "/api/admin/register")
-                    .permitAll();
-            httpSecurity.authorizeRequests().antMatchers("/api/admin/**").hasRole("ADMINISTRATOR");
+            httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+            httpSecurity.cors().and().authorizeRequests()
+
+                    .antMatchers(HttpMethod.DELETE, "/api/admin/posts/{id}").hasRole("ADMINISTRATOR")
+                    .antMatchers(HttpMethod.PUT, "/api/admin/posts/{id}").hasRole("ADMINISTRATOR");
 
             httpSecurity.addFilterBefore(SecurityConfig.this.jwtAuthenticationFilter,
                     UsernamePasswordAuthenticationFilter.class);
@@ -103,11 +104,13 @@ public class SecurityConfig {
 
         @Override
         protected void configure(HttpSecurity httpSecurity) throws Exception {
-            /*
-             * httpSecurity.csrf().disable();
-             * httpSecurity.authorizeRequests().antMatchers(HttpMethod.GET,
-             * "/api/posts/{id}", "/api/posts/all/headers") .permitAll();
-             */
+            httpSecurity.csrf().disable();
+            httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+            httpSecurity.cors().and().authorizeRequests()
+                    .antMatchers(HttpMethod.POST, "/api/login", "/api/register", "/api/admin/login",
+                            "/api/admin/register")
+                    .permitAll().antMatchers(HttpMethod.GET, "/api/posts/{id}", "/api/posts/all/headers").permitAll();
         }
 
     }
