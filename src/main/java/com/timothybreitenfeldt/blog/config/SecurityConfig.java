@@ -8,22 +8,27 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.timothybreitenfeldt.blog.filter.AdministratorJWTFilter;
-import com.timothybreitenfeldt.blog.filter.UserJWTFilter;
+import com.timothybreitenfeldt.blog.filter.JWTAuthenticationFilter;
 import com.timothybreitenfeldt.blog.service.AdministratorDetailsServiceImpl;
 import com.timothybreitenfeldt.blog.service.UserDetailsServiceImpl;
 
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JWTAuthenticationFilter jwtAuthenticationFilter;
 
     @Order(1)
     @Configuration
@@ -31,9 +36,6 @@ public class SecurityConfig {
 
         @Autowired
         private UserDetailsServiceImpl authorDetailsServiceImpl;
-
-        @Autowired
-        private UserJWTFilter userJWTFilter;
 
         @Primary
         @Bean(name = "userAuthenticationManager")
@@ -50,13 +52,15 @@ public class SecurityConfig {
         @Override
         protected void configure(HttpSecurity httpSecurity) throws Exception {
             httpSecurity.csrf().disable();
-            httpSecurity.authorizeRequests().antMatchers(HttpMethod.POST, "/api/login", "/api/register").permitAll();
-            httpSecurity.requestMatchers().antMatchers(HttpMethod.POST, "/api/posts")
-                    .antMatchers(HttpMethod.GET, "/api/author/posts/headers")
-                    .antMatchers(HttpMethod.PUT, "/api/posts/{id}").and().authorizeRequests().anyRequest()
-                    .hasRole("AUTHOR");
+            httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-            httpSecurity.addFilterBefore(this.userJWTFilter, UsernamePasswordAuthenticationFilter.class);
+            httpSecurity.cors().and().authorizeRequests().antMatchers(HttpMethod.POST, "/api/login", "/api/register")
+                    .permitAll().antMatchers(HttpMethod.POST, "/api/posts").hasRole("AUTHOR")
+                    .antMatchers(HttpMethod.GET, "/api/author/posts/headers").hasRole("AUTHOR")
+                    .antMatchers(HttpMethod.PUT, "/api/posts/{id}").hasRole("AUTHOR");
+
+            httpSecurity.addFilterBefore(SecurityConfig.this.jwtAuthenticationFilter,
+                    UsernamePasswordAuthenticationFilter.class);
         }
 
     }
@@ -67,9 +71,6 @@ public class SecurityConfig {
 
         @Autowired
         private AdministratorDetailsServiceImpl administratorDetailsServiceImpl;
-
-        @Autowired
-        private AdministratorJWTFilter administratorJWTFilter;
 
         @Bean(name = "administratorAuthenticationManager")
         @Override
@@ -90,7 +91,8 @@ public class SecurityConfig {
                     .permitAll();
             httpSecurity.authorizeRequests().antMatchers("/api/admin/**").hasRole("ADMINISTRATOR");
 
-            httpSecurity.addFilterBefore(this.administratorJWTFilter, UsernamePasswordAuthenticationFilter.class);
+            httpSecurity.addFilterBefore(SecurityConfig.this.jwtAuthenticationFilter,
+                    UsernamePasswordAuthenticationFilter.class);
         }
 
     }
@@ -101,9 +103,11 @@ public class SecurityConfig {
 
         @Override
         protected void configure(HttpSecurity httpSecurity) throws Exception {
-            httpSecurity.csrf().disable();
-            httpSecurity.authorizeRequests().antMatchers(HttpMethod.GET, "/api/posts/{id}", "/api/posts/all/headers")
-                    .permitAll();
+            /*
+             * httpSecurity.csrf().disable();
+             * httpSecurity.authorizeRequests().antMatchers(HttpMethod.GET,
+             * "/api/posts/{id}", "/api/posts/all/headers") .permitAll();
+             */
         }
 
     }

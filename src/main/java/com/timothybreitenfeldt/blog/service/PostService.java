@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.timothybreitenfeldt.blog.dto.PostHeaderResponseDto;
@@ -15,16 +16,12 @@ import com.timothybreitenfeldt.blog.exception.PostNotFoundException;
 import com.timothybreitenfeldt.blog.model.Post;
 import com.timothybreitenfeldt.blog.model.User;
 import com.timothybreitenfeldt.blog.repository.PostRepository;
-import com.timothybreitenfeldt.blog.util.JWTUtil;
 
 @Service
 public class PostService {
 
     @Autowired
     private PostRepository postRepository;
-
-    @Autowired
-    private JWTUtil jwtUtil;
 
     @Transactional
     public PostResponseDto createPost(PostRequestDto postRequestDto) {
@@ -39,7 +36,7 @@ public class PostService {
     }
 
     public List<PostHeaderResponseDto> getPostHeadersForAuthor() {
-        String username = this.jwtUtil.extractSubject();
+        String username = this.getUsernameFromSecurityContext();
         List<Post> posts = this.postRepository.findAllPostHeadersByUsername(username);
         return posts.stream().map(this::mapFromPostModelToPostHeaderResponseDto).collect(Collectors.toList());
     }
@@ -87,7 +84,7 @@ public class PostService {
             throw new PostNotFoundException("Post with ID " + id + " cannot be found.");
         }
 
-        String username = this.jwtUtil.extractSubject();
+        String username = this.getUsernameFromSecurityContext();
         this.postRepository.deleteByIdForUser(id, username);
     }
 
@@ -110,7 +107,7 @@ public class PostService {
 
         if (isUserRequest) {
             user = new User();
-            String username = this.jwtUtil.extractSubject();
+            String username = this.getUsernameFromSecurityContext();
             user.setUsername(username);
         }
 
@@ -140,6 +137,10 @@ public class PostService {
         postResponseDto.setCreatedOn(post.getCreatedOn());
         postResponseDto.setUpdatedOn(post.getUpdatedOn());
         return postResponseDto;
+    }
+
+    private String getUsernameFromSecurityContext() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
 }
