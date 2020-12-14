@@ -1,4 +1,4 @@
-package com.timothybreitenfeldt.blog.util;
+package com.timothybreitenfeldt.blog.security;
 
 import java.util.Collection;
 import java.util.Date;

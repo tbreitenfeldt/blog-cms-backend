@@ -13,6 +13,7 @@ import com.timothybreitenfeldt.blog.dto.PostHeaderResponseDto;
 import com.timothybreitenfeldt.blog.dto.PostRequestDto;
 import com.timothybreitenfeldt.blog.dto.PostResponseDto;
 import com.timothybreitenfeldt.blog.exception.PostNotFoundException;
+import com.timothybreitenfeldt.blog.exception.UserNotAuthenticatedException;
 import com.timothybreitenfeldt.blog.model.Post;
 import com.timothybreitenfeldt.blog.model.User;
 import com.timothybreitenfeldt.blog.repository.PostRepository;
@@ -64,8 +65,7 @@ public class PostService {
             throw new PostNotFoundException("Post with ID " + id + " cannot be found.");
         }
 
-        boolean isUserRequest = true;
-        Post post = this.mapFromPostRequestDtoToPostModel(id, postRequestDto, isUserRequest);
+        Post post = this.mapFromPostRequestDtoToPostModel(id, postRequestDto);
         this.postRepository.save(post);
     }
 
@@ -89,15 +89,15 @@ public class PostService {
     }
 
     private Post mapFromPostRequestDtoToPostModel(PostRequestDto postRequestDto) {
-        return this.mapFromPostRequestDtoToPostModel(null, postRequestDto);
+        return this.mapFromPostRequestDtoToPostModel(null, postRequestDto, true);
     }
 
     private Post mapFromPostRequestDtoToPostModel(Long id, PostRequestDto postRequestDto) {
-        boolean isUserRequest = true;
-        return this.mapFromPostRequestDtoToPostModel(id, postRequestDto, isUserRequest);
+        boolean includeUsername = true;
+        return this.mapFromPostRequestDtoToPostModel(id, postRequestDto, includeUsername);
     }
 
-    private Post mapFromPostRequestDtoToPostModel(Long id, PostRequestDto postRequestDto, boolean isUserRequest) {
+    private Post mapFromPostRequestDtoToPostModel(Long id, PostRequestDto postRequestDto, boolean includeUsername) {
         Post post = new Post();
         User user = null;
 
@@ -105,9 +105,11 @@ public class PostService {
             post.setId(id);
         }
 
-        if (isUserRequest) {
+        if (includeUsername) {
+            System.out.println("hello world");
             user = new User();
             String username = this.getUsernameFromSecurityContext();
+            System.out.println("username: " + username);
             user.setUsername(username);
         }
 
@@ -140,7 +142,13 @@ public class PostService {
     }
 
     private String getUsernameFromSecurityContext() {
-        return SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if (username == null || username.isEmpty()) {
+            throw new UserNotAuthenticatedException("Unable to retrieve username.");
+        }
+
+        return username;
     }
 
 }

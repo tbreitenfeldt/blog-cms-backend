@@ -1,7 +1,5 @@
 package com.timothybreitenfeldt.blog.service;
 
-import javax.annotation.Resource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,10 +13,10 @@ import com.timothybreitenfeldt.blog.dto.AuthenticationResponseDto;
 import com.timothybreitenfeldt.blog.dto.RegisterRequestDto;
 import com.timothybreitenfeldt.blog.model.User;
 import com.timothybreitenfeldt.blog.repository.UserRepository;
-import com.timothybreitenfeldt.blog.util.JWTUtil;
+import com.timothybreitenfeldt.blog.security.JWTUtil;
 
 @Service
-public class AdministratorAuthenticationService {
+public class UserService {
 
     @Autowired
     private UserRepository userRepository;
@@ -26,30 +24,41 @@ public class AdministratorAuthenticationService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Resource(name = "administratorAuthenticationManager")
-    private AuthenticationManager administratorAuthenticationManager;
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     @Autowired
     private JWTUtil jwtUtil;
 
-    public void registerAdministrator(RegisterRequestDto registerRequest) {
-        User user = new User();
-        user.setUsername(registerRequest.getUsername());
-        user.setPassword(this.passwordEncoder.encode(registerRequest.getPassword()));
-        user.setEmail(registerRequest.getEmail());
-        user.setRole(User.Role.ROLE_ADMINISTRATOR);
-
-        this.userRepository.save(user);
-    }
-
-    public AuthenticationResponseDto administratorLogin(AuthenticationRequestDto authenticationRequest) {
+    public AuthenticationResponseDto login(AuthenticationRequestDto authenticationRequest) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 authenticationRequest.getUsername(), authenticationRequest.getPassword());
-        Authentication authentication = this.administratorAuthenticationManager.authenticate(authenticationToken);
+        Authentication authentication = this.authenticationManager.authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = this.jwtUtil.generateToken(authentication);
         org.springframework.security.core.userdetails.User user = (org.springframework.security.core.userdetails.User) authentication
                 .getPrincipal();
         return new AuthenticationResponseDto(jwt, user.getUsername(), user.getAuthorities().toString());
     }
+
+    public void registerAuthor(RegisterRequestDto registerRequestDto) {
+        User user = this.matFromRegisterRequestDtoToUserModel(registerRequestDto);
+        user.setRole(User.Role.ROLE_AUTHOR);
+        this.userRepository.save(user);
+    }
+
+    public void registerAdministrator(RegisterRequestDto registerRequestDto) {
+        User user = this.matFromRegisterRequestDtoToUserModel(registerRequestDto);
+        user.setRole(User.Role.ROLE_ADMINISTRATOR);
+        this.userRepository.save(user);
+    }
+
+    private User matFromRegisterRequestDtoToUserModel(RegisterRequestDto registerRequestDto) {
+        User user = new User();
+        user.setUsername(registerRequestDto.getUsername());
+        user.setPassword(this.passwordEncoder.encode(registerRequestDto.getPassword()));
+        user.setEmail(registerRequestDto.getEmail());
+        return user;
+    }
+
 }

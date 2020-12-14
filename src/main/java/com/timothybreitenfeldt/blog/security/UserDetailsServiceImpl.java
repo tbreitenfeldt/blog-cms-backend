@@ -1,4 +1,4 @@
-package com.timothybreitenfeldt.blog.service;
+package com.timothybreitenfeldt.blog.security;
 
 import java.util.Collections;
 
@@ -14,19 +14,18 @@ import com.timothybreitenfeldt.blog.model.User;
 import com.timothybreitenfeldt.blog.repository.UserRepository;
 
 @Service
-public class AdministratorDetailsServiceImpl implements UserDetailsService {
+public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = this.userRepository.findAdministratorByUsernameOrEmail(username)
+        User user = this.userRepository.findUserByUsernameOrEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Invalid username or password."));
         GrantedAuthority athority = new SimpleGrantedAuthority(user.getRole().name());
         UserDetails userDetails = new org.springframework.security.core.userdetails.User(user.getUsername(),
                 user.getPassword(), Collections.singletonList(athority));
-        System.out.println("username: " + user.getUsername());
         return userDetails;
     }
 

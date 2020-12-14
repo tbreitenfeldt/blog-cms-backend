@@ -13,25 +13,31 @@ import org.springframework.web.bind.annotation.RestController;
 import com.timothybreitenfeldt.blog.dto.AuthenticationRequestDto;
 import com.timothybreitenfeldt.blog.dto.AuthenticationResponseDto;
 import com.timothybreitenfeldt.blog.dto.RegisterRequestDto;
-import com.timothybreitenfeldt.blog.service.UserAuthenticationService;
+import com.timothybreitenfeldt.blog.service.UserService;
 
 @RestController
 @RequestMapping("/api")
-public class UserAuthenticationController {
+public class UserController {
 
     @Autowired
-    private UserAuthenticationService authorAuthenticationService;
+    private UserService userService;
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public void registerAuthor(@Valid @RequestBody RegisterRequestDto registerRequest) {
-        this.authorAuthenticationService.registerAuthor(registerRequest);
+        this.userService.registerAuthor(registerRequest);
+    }
+
+    @PostMapping("/admin/register")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void registerAdministrator(@Valid @RequestBody RegisterRequestDto registerRequest) {
+        this.userService.registerAdministrator(registerRequest);
     }
 
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
-    public AuthenticationResponseDto authorLogin(@Valid @RequestBody AuthenticationRequestDto authenticationRequest) {
-        return this.authorAuthenticationService.authorLogin(authenticationRequest);
+    public AuthenticationResponseDto login(@Valid @RequestBody AuthenticationRequestDto authenticationRequest) {
+        return this.userService.login(authenticationRequest);
     }
 
 }

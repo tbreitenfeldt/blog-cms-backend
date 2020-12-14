@@ -1,4 +1,4 @@
-package com.timothybreitenfeldt.blog.filter;
+package com.timothybreitenfeldt.blog.security;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -19,8 +19,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.timothybreitenfeldt.blog.util.JWTUtil;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 
@@ -39,7 +37,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             if (token != null) {
                 Claims jwtClaims = this.jwtUtil.validateToken(token);
                 String username = jwtClaims.getSubject();
-                System.out.println(jwtClaims);
                 @SuppressWarnings("unchecked")
                 List<LinkedHashMap<String, String>> extractedClaimAuthorities = jwtClaims.get("authorities",
                         List.class);

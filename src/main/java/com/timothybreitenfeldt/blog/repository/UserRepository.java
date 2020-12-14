@@ -11,10 +11,7 @@ import com.timothybreitenfeldt.blog.model.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    @Query("FROM User u WHERE (u.username = :identifier or u.email = :identifier) and u.role = 'ROLE_ADMINISTRATOR'")
-    public abstract Optional<User> findAdministratorByUsernameOrEmail(String identifier);
-
-    @Query("FROM User u WHERE (u.username = :identifier or u.email = :identifier) and u.role = 'ROLE_AUTHOR'")
-    public abstract Optional<User> findAuthorByUsernameOrEmail(String identifier);
+    @Query("FROM User u WHERE lower(u.username) like lower(:identifier) or lower(u.email) like lower(:identifier)")
+    public abstract Optional<User> findUserByUsernameOrEmail(String identifier);
 
 }
