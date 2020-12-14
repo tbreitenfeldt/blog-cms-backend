@@ -1,6 +1,7 @@
 package com.timothybreitenfeldt.blog.security;
 
-import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -23,9 +24,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = this.userRepository.findUserByUsernameOrEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Invalid username or password."));
-        GrantedAuthority athority = new SimpleGrantedAuthority(user.getRole().name());
+        List<GrantedAuthority> authorities = user.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority(role.name())).collect(Collectors.toList());
         UserDetails userDetails = new org.springframework.security.core.userdetails.User(user.getUsername(),
-                user.getPassword(), Collections.singletonList(athority));
+                user.getPassword(), authorities);
         return userDetails;
     }
 

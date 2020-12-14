@@ -1,5 +1,9 @@
 package com.timothybreitenfeldt.blog.service;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,6 +16,7 @@ import com.timothybreitenfeldt.blog.dto.AuthenticationRequestDto;
 import com.timothybreitenfeldt.blog.dto.AuthenticationResponseDto;
 import com.timothybreitenfeldt.blog.dto.RegisterRequestDto;
 import com.timothybreitenfeldt.blog.model.User;
+import com.timothybreitenfeldt.blog.model.User.Role;
 import com.timothybreitenfeldt.blog.repository.UserRepository;
 import com.timothybreitenfeldt.blog.security.JWTUtil;
 
@@ -43,13 +48,13 @@ public class UserService {
 
     public void registerAuthor(RegisterRequestDto registerRequestDto) {
         User user = this.matFromRegisterRequestDtoToUserModel(registerRequestDto);
-        user.setRole(User.Role.ROLE_AUTHOR);
+        user.setRoles(new HashSet<Role>(Collections.singletonList(Role.ROLE_AUTHOR)));
         this.userRepository.save(user);
     }
 
     public void registerAdministrator(RegisterRequestDto registerRequestDto) {
         User user = this.matFromRegisterRequestDtoToUserModel(registerRequestDto);
-        user.setRole(User.Role.ROLE_ADMINISTRATOR);
+        user.setRoles(new HashSet<Role>(Arrays.asList(Role.ROLE_ADMINISTRATOR, Role.ROLE_AUTHOR)));
         this.userRepository.save(user);
     }
 

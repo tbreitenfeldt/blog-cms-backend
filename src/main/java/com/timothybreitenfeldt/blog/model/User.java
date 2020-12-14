@@ -1,14 +1,19 @@
 package com.timothybreitenfeldt.blog.model;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
@@ -43,9 +48,11 @@ public class User {
     @Email
     private String email;
 
-    @Column(nullable = false)
+    @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "role_id", nullable = false)
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private Set<Role> roles;
 
     @Column(updatable = false)
     @CreationTimestamp
