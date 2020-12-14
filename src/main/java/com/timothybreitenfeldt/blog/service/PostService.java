@@ -17,6 +17,7 @@ import com.timothybreitenfeldt.blog.exception.UserNotAuthenticatedException;
 import com.timothybreitenfeldt.blog.model.Post;
 import com.timothybreitenfeldt.blog.model.User;
 import com.timothybreitenfeldt.blog.repository.PostRepository;
+import com.timothybreitenfeldt.blog.security.UserDetailsImpl;
 
 @Service
 public class PostService {
@@ -37,8 +38,8 @@ public class PostService {
     }
 
     public List<PostHeaderResponseDto> getPostHeadersForAuthor() {
-        String username = this.getUsernameFromSecurityContext();
-        List<Post> posts = this.postRepository.findAllPostHeadersByUsername(username);
+        Long userId = this.getUserIdFromSecurityContext();
+        List<Post> posts = this.postRepository.findAllPostHeadersByUserId(userId);
         return posts.stream().map(this::mapFromPostModelToPostHeaderResponseDto).collect(Collectors.toList());
     }
 
@@ -54,8 +55,8 @@ public class PostService {
             throw new PostNotFoundException("Post with ID " + id + " cannot be found.");
         }
 
-        boolean isUserRequest = false;
-        Post post = this.mapFromPostRequestDtoToPostModel(id, postRequestDto, isUserRequest);
+        boolean includeUserId = false;
+        Post post = this.mapFromPostRequestDtoToPostModel(id, postRequestDto, includeUserId);
         this.postRepository.save(post);
     }
 
@@ -84,8 +85,8 @@ public class PostService {
             throw new PostNotFoundException("Post with ID " + id + " cannot be found.");
         }
 
-        String username = this.getUsernameFromSecurityContext();
-        this.postRepository.deleteByIdForUser(id, username);
+        Long userId = this.getUserIdFromSecurityContext();
+        this.postRepository.deleteByIdForUser(id, userId);
     }
 
     private Post mapFromPostRequestDtoToPostModel(PostRequestDto postRequestDto) {
@@ -97,7 +98,7 @@ public class PostService {
         return this.mapFromPostRequestDtoToPostModel(id, postRequestDto, includeUsername);
     }
 
-    private Post mapFromPostRequestDtoToPostModel(Long id, PostRequestDto postRequestDto, boolean includeUsername) {
+    private Post mapFromPostRequestDtoToPostModel(Long id, PostRequestDto postRequestDto, boolean includeUserId) {
         Post post = new Post();
         User user = null;
 
@@ -105,12 +106,10 @@ public class PostService {
             post.setId(id);
         }
 
-        if (includeUsername) {
-            System.out.println("hello world");
+        if (includeUserId) {
             user = new User();
-            String username = this.getUsernameFromSecurityContext();
-            System.out.println("username: " + username);
-            user.setUsername(username);
+            Long userId = this.getUserIdFromSecurityContext();
+            user.setId(userId);
         }
 
         post.setTitle(postRequestDto.getTitle());
@@ -141,14 +140,15 @@ public class PostService {
         return postResponseDto;
     }
 
-    private String getUsernameFromSecurityContext() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    private Long getUserIdFromSecurityContext() {
+        UserDetailsImpl userDetailsImpl = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
 
-        if (username == null || username.isEmpty()) {
-            throw new UserNotAuthenticatedException("Unable to retrieve username.");
+        if (userDetailsImpl == null) {
+            throw new UserNotAuthenticatedException("Unable to retrieve user ID.");
         }
 
-        return username;
+        return userDetailsImpl.getUserId();
     }
 
 }

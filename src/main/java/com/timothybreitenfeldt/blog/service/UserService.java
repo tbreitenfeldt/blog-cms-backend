@@ -19,6 +19,7 @@ import com.timothybreitenfeldt.blog.model.User;
 import com.timothybreitenfeldt.blog.model.User.Role;
 import com.timothybreitenfeldt.blog.repository.UserRepository;
 import com.timothybreitenfeldt.blog.security.JWTUtil;
+import com.timothybreitenfeldt.blog.security.UserDetailsImpl;
 
 @Service
 public class UserService {
@@ -40,10 +41,13 @@ public class UserService {
                 authenticationRequest.getUsername(), authenticationRequest.getPassword());
         Authentication authentication = this.authenticationManager.authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = this.jwtUtil.generateToken(authentication);
-        org.springframework.security.core.userdetails.User user = (org.springframework.security.core.userdetails.User) authentication
+        UserDetailsImpl userDetailsImpl = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
-        return new AuthenticationResponseDto(jwt, user.getUsername(), user.getAuthorities().toString());
+        System.out.println("username from userDetailsImpl: " + userDetailsImpl.getUsername());
+        System.out.println("user ID from UserDetailsImpl: " + userDetailsImpl.getUserId());
+        String jwt = this.jwtUtil.generateToken(userDetailsImpl);
+        return new AuthenticationResponseDto(jwt, userDetailsImpl.getUsername(),
+                userDetailsImpl.getAuthorities().toString());
     }
 
     public void registerAuthor(RegisterRequestDto registerRequestDto) {

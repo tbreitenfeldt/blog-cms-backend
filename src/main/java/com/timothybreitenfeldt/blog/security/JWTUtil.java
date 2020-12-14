@@ -8,10 +8,7 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
@@ -27,18 +24,16 @@ public class JWTUtil {
     private String SECRET_KEY;
     private SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 
-    public String generateToken(Authentication authentication) {
-        User principal = (User) authentication.getPrincipal();
-        return this.createToken(principal.getUsername(), authentication.getAuthorities());
+    public String generateToken(UserDetailsImpl userDetailsImpl) {
+        return this.createToken(userDetailsImpl.getUsername(), userDetailsImpl.getAuthorities(),
+                userDetailsImpl.isAccountNonLocked(), userDetailsImpl.getUserId());
     }
 
-    public String generateToken(UserDetails userDetails) {
-        return this.createToken(userDetails.getUsername(), userDetails.getAuthorities());
-    }
-
-    private String createToken(String subject, Collection<? extends GrantedAuthority> authorities) {
-        return Jwts.builder().claim("authorities", authorities).setSubject(subject)
-                .setIssuer("blog.timothybreitenfeldt.com").setIssuedAt(new Date(System.currentTimeMillis()))
+    private String createToken(String subject, Collection<? extends GrantedAuthority> authorities,
+            boolean isAccountNonLocked, Long userId) {
+        return Jwts.builder().claim("authorities", authorities).claim("is_account_non_locked", isAccountNonLocked)
+                .claim("user_id", userId).setSubject(subject).setIssuer("blog.timothybreitenfeldt.com")
+                .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
                 .setId(UUID.randomUUID().toString()).signWith(this.signatureAlgorithm, this.getSigningKey()).compact();
     }

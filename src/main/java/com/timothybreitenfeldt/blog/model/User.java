@@ -54,6 +54,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
 
+    @Column(columnDefinition = "boolean default true")
+    private boolean isAccountNonLocked;
+
     @Column(updatable = false)
     @CreationTimestamp
     private LocalDateTime createdOn;

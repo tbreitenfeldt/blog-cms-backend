@@ -15,6 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -37,14 +38,17 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             if (token != null) {
                 Claims jwtClaims = this.jwtUtil.validateToken(token);
                 String username = jwtClaims.getSubject();
+                Long userId = jwtClaims.get("user_id", Long.class);
+                boolean isAccountNonLocked = jwtClaims.get("is_account_non_locked", Boolean.class);
                 @SuppressWarnings("unchecked")
                 List<LinkedHashMap<String, String>> extractedClaimAuthorities = jwtClaims.get("authorities",
                         List.class);
                 List<GrantedAuthority> authorities = extractedClaimAuthorities.stream()
                         .map((authority) -> new SimpleGrantedAuthority(authority.get("authority")))
                         .collect(Collectors.toList());
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, null,
-                        authorities);
+                UserDetails userDetails = new UserDetailsImpl(username, authorities, isAccountNonLocked, userId);
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
+                        null, authorities);
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
