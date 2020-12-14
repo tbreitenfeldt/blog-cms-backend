@@ -39,7 +39,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                 Claims jwtClaims = this.jwtUtil.validateToken(token);
                 String username = jwtClaims.getSubject();
                 Long userId = jwtClaims.get("user_id", Long.class);
-                boolean isAccountNonLocked = jwtClaims.get("is_account_non_locked", Boolean.class);
+                boolean isAccountNonLocked = true; // jwtClaims.get("is_account_non_locked", Boolean.class);
                 @SuppressWarnings("unchecked")
                 List<LinkedHashMap<String, String>> extractedClaimAuthorities = jwtClaims.get("authorities",
                         List.class);

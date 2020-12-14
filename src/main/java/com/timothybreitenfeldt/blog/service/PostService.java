@@ -134,7 +134,7 @@ public class PostService {
         postResponseDto.setId(post.getId());
         postResponseDto.setTitle(post.getTitle());
         postResponseDto.setContent(post.getContent());
-        postResponseDto.setUsername(post.getUser().getUsername());
+        postResponseDto.setUsername(this.getUsernameFromSecurityContext());
         postResponseDto.setCreatedOn(post.getCreatedOn());
         postResponseDto.setUpdatedOn(post.getUpdatedOn());
         return postResponseDto;
@@ -149,6 +149,17 @@ public class PostService {
         }
 
         return userDetailsImpl.getUserId();
+    }
+
+    private String getUsernameFromSecurityContext() {
+        UserDetailsImpl userDetailsImpl = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+
+        if (userDetailsImpl == null) {
+            throw new UserNotAuthenticatedException("Unable to retrieve username.");
+        }
+
+        return userDetailsImpl.getUsername();
     }
 
 }

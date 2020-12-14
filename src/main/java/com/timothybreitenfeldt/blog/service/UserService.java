@@ -43,8 +43,6 @@ public class UserService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetailsImpl userDetailsImpl = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
-        System.out.println("username from userDetailsImpl: " + userDetailsImpl.getUsername());
-        System.out.println("user ID from UserDetailsImpl: " + userDetailsImpl.getUserId());
         String jwt = this.jwtUtil.generateToken(userDetailsImpl);
         return new AuthenticationResponseDto(jwt, userDetailsImpl.getUsername(),
                 userDetailsImpl.getAuthorities().toString());
