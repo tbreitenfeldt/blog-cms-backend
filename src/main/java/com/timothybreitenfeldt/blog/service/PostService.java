@@ -90,12 +90,14 @@ public class PostService {
     }
 
     private Post mapFromPostRequestDtoToPostModel(PostRequestDto postRequestDto) {
-        return this.mapFromPostRequestDtoToPostModel(null, postRequestDto, true);
+        Long id = null;
+        boolean includeUserId = true;
+        return this.mapFromPostRequestDtoToPostModel(id, postRequestDto, includeUserId);
     }
 
     private Post mapFromPostRequestDtoToPostModel(Long id, PostRequestDto postRequestDto) {
-        boolean includeUsername = true;
-        return this.mapFromPostRequestDtoToPostModel(id, postRequestDto, includeUsername);
+        boolean includeUserId = true;
+        return this.mapFromPostRequestDtoToPostModel(id, postRequestDto, includeUserId);
     }
 
     private Post mapFromPostRequestDtoToPostModel(Long id, PostRequestDto postRequestDto, boolean includeUserId) {
@@ -140,7 +142,7 @@ public class PostService {
         return postResponseDto;
     }
 
-    private Long getUserIdFromSecurityContext() {
+    public Long getUserIdFromSecurityContext() {
         UserDetailsImpl userDetailsImpl = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
 
@@ -151,7 +153,7 @@ public class PostService {
         return userDetailsImpl.getUserId();
     }
 
-    private String getUsernameFromSecurityContext() {
+    public String getUsernameFromSecurityContext() {
         UserDetailsImpl userDetailsImpl = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
 
