@@ -50,7 +50,7 @@ public class User {
 
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "role_id", nullable = false)
+    @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
 

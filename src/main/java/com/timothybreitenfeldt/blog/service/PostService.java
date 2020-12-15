@@ -89,7 +89,7 @@ public class PostService {
         this.postRepository.deleteByIdForUser(id, userId);
     }
 
-    private Post mapFromPostRequestDtoToPostModel(PostRequestDto postRequestDto) {
+    public Post mapFromPostRequestDtoToPostModel(PostRequestDto postRequestDto) {
         Long id = null;
         boolean includeUserId = true;
         return this.mapFromPostRequestDtoToPostModel(id, postRequestDto, includeUserId);
