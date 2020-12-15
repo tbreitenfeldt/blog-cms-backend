@@ -36,8 +36,8 @@ public class UserController {
 
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
-    public AuthenticationResponseDto login(@Valid @RequestBody AuthenticationRequestDto authenticationRequest) {
-        return this.userService.login(authenticationRequest);
+    public AuthenticationResponseDto login(@Valid @RequestBody AuthenticationRequestDto authenticationRequestDto) {
+        return this.userService.login(authenticationRequestDto);
     }
 
 }

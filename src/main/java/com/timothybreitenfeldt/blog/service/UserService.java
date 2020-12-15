@@ -36,9 +36,9 @@ public class UserService {
     @Autowired
     private JWTUtil jwtUtil;
 
-    public AuthenticationResponseDto login(AuthenticationRequestDto authenticationRequest) {
+    public AuthenticationResponseDto login(AuthenticationRequestDto authenticationRequestDto) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                authenticationRequest.getUsername(), authenticationRequest.getPassword());
+                authenticationRequestDto.getUsername(), authenticationRequestDto.getPassword());
         Authentication authentication = this.authenticationManager.authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetailsImpl userDetailsImpl = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
@@ -65,6 +65,7 @@ public class UserService {
         user.setUsername(registerRequestDto.getUsername());
         user.setPassword(this.passwordEncoder.encode(registerRequestDto.getPassword()));
         user.setEmail(registerRequestDto.getEmail());
+        user.setAccountNonLocked(true);
         return user;
     }
 
