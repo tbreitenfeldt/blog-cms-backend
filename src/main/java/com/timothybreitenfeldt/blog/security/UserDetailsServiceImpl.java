@@ -22,7 +22,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = this.userRepository.findUserByUsernameOrEmail(username)
+        User user = this.userRepository.findByUsernameOrEmailAllIgnoreCase(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Invalid username or password."));
         List<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.name())).collect(Collectors.toList());
