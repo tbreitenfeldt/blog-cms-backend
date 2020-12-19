@@ -6,9 +6,14 @@ import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.timothybreitenfeldt.blog.dto.PostHeaderPagerDto;
 import com.timothybreitenfeldt.blog.dto.PostHeaderResponseDto;
 import com.timothybreitenfeldt.blog.dto.PostRequestDto;
 import com.timothybreitenfeldt.blog.dto.PostResponseDto;
@@ -32,15 +37,29 @@ public class PostService {
         return this.mapFromPostModelToPostResponseDto(result);
     }
 
-    public List<PostHeaderResponseDto> getAllPostHeaders() {
-        List<Post> posts = this.postRepository.findAllPostHeaders();
-        return posts.stream().map(this::mapFromPostModelToPostHeaderResponseDto).collect(Collectors.toList());
+    public PostHeaderPagerDto getAllPostHeaders(int pageNumber, int pageSize) {
+        List<Post> posts = this.postRepository.findAll();
+        List<PostHeaderResponseDto> postHeaderResponseDtos = posts.stream()
+                .map(this::mapFromPostModelToPostHeaderResponseDto).collect(Collectors.toList());
+        PostHeaderPagerDto postHeaderPagerDto = this.paginate(postHeaderResponseDtos, pageNumber, pageSize);
+        return postHeaderPagerDto;
     }
 
-    public List<PostHeaderResponseDto> getPostHeadersForAuthor() {
+    public PostHeaderPagerDto getPostHeadersForAuthor(int pageNumber, int pageSize) {
         Long userId = this.getUserIdFromSecurityContext();
-        List<Post> posts = this.postRepository.findAllPostHeadersByUserId(userId);
-        return posts.stream().map(this::mapFromPostModelToPostHeaderResponseDto).collect(Collectors.toList());
+        List<Post> posts = this.postRepository.findAllByUserId(userId);
+        List<PostHeaderResponseDto> postHeaderResponseDtos = posts.stream()
+                .map(this::mapFromPostModelToPostHeaderResponseDto).collect(Collectors.toList());
+        PostHeaderPagerDto postHeaderPagerDto = this.paginate(postHeaderResponseDtos, pageNumber, pageSize);
+        return postHeaderPagerDto;
+    }
+
+    public PostHeaderPagerDto searchForPostsByTitle(String title, int pageNumber, int pageSize) {
+        List<Post> posts = this.postRepository.findByTitleContaining(title);
+        List<PostHeaderResponseDto> postHeaderResponseDtos = posts.stream()
+                .map(this::mapFromPostModelToPostHeaderResponseDto).collect(Collectors.toList());
+        PostHeaderPagerDto postHeaderPagerDto = this.paginate(postHeaderResponseDtos, pageNumber, pageSize);
+        return postHeaderPagerDto;
     }
 
     public PostResponseDto getPost(Long id) {
@@ -86,10 +105,19 @@ public class PostService {
         }
 
         Long userId = this.getUserIdFromSecurityContext();
-        this.postRepository.deleteByIdForUser(id, userId);
+        this.postRepository.deleteByIdAndUserId(id, userId);
     }
 
-    public Post mapFromPostRequestDtoToPostModel(PostRequestDto postRequestDto) {
+    private PostHeaderPagerDto paginate(List<PostHeaderResponseDto> content, int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        int total = content.size();
+        Page<PostHeaderResponseDto> pagedPosts = new PageImpl<>(content, pageable, total);
+        PostHeaderPagerDto postHeaderPagerDto = new PostHeaderPagerDto(pagedPosts.getNumber(),
+                pagedPosts.getTotalElements(), pagedPosts.getTotalPages(), pagedPosts.getContent());
+        return postHeaderPagerDto;
+    }
+
+    private Post mapFromPostRequestDtoToPostModel(PostRequestDto postRequestDto) {
         Long id = null;
         boolean includeUserId = true;
         return this.mapFromPostRequestDtoToPostModel(id, postRequestDto, includeUserId);

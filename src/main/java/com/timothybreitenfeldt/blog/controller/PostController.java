@@ -1,7 +1,5 @@
 package com.timothybreitenfeldt.blog.controller;
 
-import java.util.List;
-
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +11,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.timothybreitenfeldt.blog.dto.PostHeaderResponseDto;
+import com.timothybreitenfeldt.blog.dto.PostHeaderPagerDto;
 import com.timothybreitenfeldt.blog.dto.PostRequestDto;
 import com.timothybreitenfeldt.blog.dto.PostResponseDto;
 import com.timothybreitenfeldt.blog.service.PostService;
@@ -34,16 +33,22 @@ public class PostController {
         return this.postService.createPost(postRequestDto);
     }
 
-    @GetMapping("/posts/all/headers")
+    @GetMapping("/posts")
     @ResponseStatus(HttpStatus.OK)
-    public List<PostHeaderResponseDto> getAllPostHeaders() {
-        return this.postService.getAllPostHeaders();
+    public PostHeaderPagerDto getAllPostHeaders(@RequestParam(required = false) String title,
+            @RequestParam(defaultValue = "0") int pageNumber, @RequestParam(defaultValue = "10") int pageSize) {
+        if (title == null) {
+            return this.postService.getAllPostHeaders(pageNumber, pageSize);
+        }
+
+        return this.postService.searchForPostsByTitle(title, pageNumber, pageSize);
     }
 
-    @GetMapping("/author/posts/headers")
+    @GetMapping("/author/posts")
     @ResponseStatus(HttpStatus.OK)
-    public List<PostHeaderResponseDto> getPostHeadersForAuthor() {
-        return this.postService.getPostHeadersForAuthor();
+    public PostHeaderPagerDto getPostHeadersForAuthor(@RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "10") int pageSize) {
+        return this.postService.getPostHeadersForAuthor(pageNumber, pageSize);
     }
 
     @GetMapping("/posts/{id}")
