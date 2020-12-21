@@ -13,7 +13,7 @@ public class PostHeaderPagerDto {
 
     private int pageNumber;
     private long pageSize;
-    private int totalPages;
+    private int totalItems;
     private List<PostHeaderResponseDto> posts;
 
 }
