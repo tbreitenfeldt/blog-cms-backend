@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PostHeaderPagerDto {
 
-    private int currentPage;
+    private int pageNumber;
     private long pageSize;
     private int totalPages;
     private List<PostHeaderResponseDto> posts;
