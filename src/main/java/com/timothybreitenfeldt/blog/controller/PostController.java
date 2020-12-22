@@ -1,5 +1,7 @@
 package com.timothybreitenfeldt.blog.controller;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.timothybreitenfeldt.blog.dto.PostHeaderPagerDto;
+import com.timothybreitenfeldt.blog.dto.PostHeaderResponseDto;
 import com.timothybreitenfeldt.blog.dto.PostRequestDto;
 import com.timothybreitenfeldt.blog.dto.PostResponseDto;
 import com.timothybreitenfeldt.blog.service.PostService;
@@ -35,13 +38,15 @@ public class PostController {
 
     @GetMapping("/posts")
     @ResponseStatus(HttpStatus.OK)
-    public PostHeaderPagerDto getAllPostHeaders(@RequestParam(required = false) String title,
-            @RequestParam(defaultValue = "0") int pageNumber, @RequestParam(defaultValue = "10") int pageSize) {
-        if (title == null) {
-            return this.postService.getAllPostHeaders(pageNumber, pageSize);
-        }
+    public PostHeaderPagerDto getAllPostHeaders(@RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "10") int pageSize) {
+        return this.postService.getAllPostHeaders(pageNumber, pageSize);
+    }
 
-        return this.postService.searchForPostsByTitle(title, pageNumber, pageSize);
+    @GetMapping("/posts/search")
+    @ResponseStatus(HttpStatus.OK)
+    public List<PostHeaderResponseDto> searchPostsByTitle(@RequestParam String title) {
+        return this.postService.searchForPostsByTitle(title);
     }
 
     @GetMapping("/author/posts")

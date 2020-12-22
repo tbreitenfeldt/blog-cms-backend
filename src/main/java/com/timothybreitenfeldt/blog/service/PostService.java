@@ -54,12 +54,11 @@ public class PostService {
         return postHeaderPagerDto;
     }
 
-    public PostHeaderPagerDto searchForPostsByTitle(String title, int pageNumber, int pageSize) {
+    public List<PostHeaderResponseDto> searchForPostsByTitle(String title) {
         List<Post> posts = this.postRepository.findByTitleContaining(title);
         List<PostHeaderResponseDto> postHeaderResponseDtos = posts.stream()
                 .map(this::mapFromPostModelToPostHeaderResponseDto).collect(Collectors.toList());
-        PostHeaderPagerDto postHeaderPagerDto = this.paginate(postHeaderResponseDtos, pageNumber, pageSize);
-        return postHeaderPagerDto;
+        return postHeaderResponseDtos;
     }
 
     public PostResponseDto getPost(Long id) {
